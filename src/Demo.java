@@ -1,5 +1,3 @@
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.UUID;
 
@@ -20,8 +18,8 @@ public class Demo {
 	public static void main(String[] args) throws UnknownHostException {
         String broker = "tcp://192.168.0.188:1883";
         
-        //InetAddress localhost = InetAddress.getLocalHost();
-        String clientId = generateClientID();
+ 
+        final String clientId = generateClientID();
         String topic = "ev3/topic";
         
         while (clientId == null) {
@@ -58,6 +56,8 @@ public class Demo {
                         faireAvancer(2000);
                     }else if(payload.equals("back")) {
                     	faireReculer(2000);
+                    }else if(payload.equals(clientId)) {
+                    	faireAvancer(2000);
                     }
                      
                 }
@@ -76,7 +76,7 @@ public class Demo {
             client.publish(topic, mqttMessage);
 
             LCD.clear();
-            LCD.drawString("Listenning for messages", 0, 0);
+           System.out.println("Client ID: "+clientId);
             Delay.msDelay(2000);
             
            
