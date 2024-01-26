@@ -1,5 +1,8 @@
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.UUID;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
@@ -11,132 +14,146 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import lejos.hardware.Button;
 import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.Motor;
+import lejos.hardware.motor.NXTRegulatedMotor;
 import lejos.utility.Delay;
 
 public class Demo {
 
-	public static void main(String[] args) throws UnknownHostException {
-        String broker = "tcp://192.168.0.188:1883";
-        
- 
-        final String clientId = generateClientID();
+	public static void main(String[] args) throws MqttException, IOException {
+		// MQTT Connexion configuration
+		String MQTT_SERVER_IP = "192.168.0.188";
+        String broker = "tcp://" + MQTT_SERVER_IP +":1883";
+        final String clientId = "EV3_" + generateClientID();
         String topic = "ev3/topic";
         
-        while (clientId == null) {
-            try {
-                Thread.sleep(150); 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        // Attempt to connect
+        MqttClient client = new MqttClient(broker, clientId);
+        MqttConnectOptions connOpts = new MqttConnectOptions();
+        connOpts.setCleanSession(true);
+        print("Connecting to broker:" + MQTT_SERVER_IP);
+        client.connect(connOpts);
+        print("Connected.");
+        Delay.msDelay(2000);
+        
+        // Subscribe to topic messages
+        client.subscribe(topic);
+        
+        // Emit a message to topic (EV3_ followed by MAC Address)
+        String message = "Connected: " + clientId;
+        MqttMessage mqttMessage = new MqttMessage(message.getBytes());
+        client.publish(topic, mqttMessage);
+        print("Waiting action");
+        
+        // MQTT message listenner
+        client.setCallback(new MqttCallback() {
+        	// Exit program if connexion is lost
+            @Override
+            public void connectionLost(Throwable cause) {
+            	print("Connection lost");
+            	Delay.msDelay(3000);
+            	System.exit(0);
             }
-        }
 
-        try {
-            MqttClient client = new MqttClient(broker, clientId);
-            MqttConnectOptions connOpts = new MqttConnectOptions();
-            connOpts.setCleanSession(true);
-
-            LCD.drawString("Connecting to broker: " + broker, 0, 0);
-            client.connect(connOpts);
-            LCD.clear();
-            LCD.drawString("Connected", 0, 0);
-            Delay.msDelay(2000);
-            LCD.clear();
- 
-         
-            client.setCallback(new MqttCallback() {
-                @Override
-                public void connectionLost(Throwable cause) {
-                    System.out.println("Connection lost!");
+            // On message arrived from topic
+            @Override
+            public void messageArrived(String topic, MqttMessage message) {
+                String payload = new String(message.getPayload());
+                 if(payload.equals("go")) {
+                	 print("Moving forward");
+                    startMotorsSync(Motor.B, Motor.C, Action.FORWARD, 2000);
+                } else if(payload.equals("back")) {
+                	print("Moving backward");
+                	startMotorsSync(Motor.B, Motor.C, Action.BACKWARD, 2000);
+                } else if(payload.equals(clientId)) {
+                	print("Special move");
+                	startMotorsSync(Motor.B, Motor.B, Action.FORWARD, 5000); // Tourbillon
                 }
+                 
+            }
 
-                @Override
-                public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    String payload = new String(message.getPayload());
-                     if(payload.equals("go")) {
-                        faireAvancer(2000);
-                    }else if(payload.equals("back")) {
-                    	faireReculer(2000);
-                    }else if(payload.equals(clientId)) {
-                    	faireAvancer(2000);
-                    }
-                     
-                }
-
-                @Override
-                public void deliveryComplete(IMqttDeliveryToken token) {
-                }
-            });
-
-            
+            @Override
+            public void deliveryComplete(IMqttDeliveryToken token) {
+            }
+        });
        
-            client.subscribe(topic);
-
-            String message = "Salut, de " + clientId;
-            MqttMessage mqttMessage = new MqttMessage(message.getBytes());
-            client.publish(topic, mqttMessage);
-
-            LCD.clear();
-           System.out.println("Client ID: "+clientId);
-            Delay.msDelay(2000);
-            
-           
-            while (true) {
-              Delay.msDelay(1000); 
-              if (Button.DOWN.isDown())
-            	  System.exit(0);
-            }
-            
-            
-        } catch (MqttException e) {
-            System.out.println("err:" + e.getMessage());
+        // Exit program by long pressing DOWN button 
+        while (true) {
+          Delay.msDelay(500); 
+          if (Button.DOWN.isDown())
+        	  System.exit(0);
         }
     }
 
-    public static void faireAvancer(int duree) {
-        Motor.B.forward();
-        Motor.C.forward(); 
+	// Get the MAC Address of the Wifi dongle
+	public static StringBuilder generateClientID() throws UnknownHostException, SocketException {
+		InetAddress localHost = InetAddress.getLocalHost();
+        NetworkInterface ni = NetworkInterface.getByInetAddress(localHost);
+        byte[] mac = ni.getHardwareAddress();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < mac.length; i++) {
+           stringBuilder.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+        }
+		return stringBuilder;
+	}
+	
+	public static void print(String message) {	    
+		System.out.println(message);
+	}
 
-        Delay.msDelay(duree); 
-
-        Thread leftMotorThread = new Thread(new Runnable() {
+	// Move the motors at the same time with no delay (sync)
+	public static void startMotorsSync(final NXTRegulatedMotor M1, final NXTRegulatedMotor M2, final Action action, final int duration) {
+        Thread M1_Thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Motor.B.stop();
+                performMotorAction(M1, action);
             }
         });
 
-        Thread rightMotorThread = new Thread(new Runnable() {
+        Thread M2_Thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Motor.C.stop();
+                performMotorAction(M2, action);
             }
         });
 
-        leftMotorThread.start();
-        rightMotorThread.start();
+        M1_Thread.start();
+        M2_Thread.start();
 
-        // Wait for both threads to finish
         try {
-            leftMotorThread.join();
-            rightMotorThread.join();
+            M1_Thread.join();
+            M2_Thread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-    public static void faireReculer(int duree) {
-        Motor.B.backward(); // Moteur gauche en arrière
-        Motor.C.backward(); // Moteur droit en arrière
-
-        Delay.msDelay(duree); // Pause pendant la durée spécifiée
-
-        Motor.B.stop(); // Arrête le moteur gauche
-        Motor.C.stop(); // Arrête le moteur droit
         
-    }
-    public static String generateClientID() {
-    	    	
-    	return "EV3_" + UUID.randomUUID().toString();
+        Delay.msDelay(duration); // Moving duration
+        // Stop the motors if the're moving
+        if (action != Action.STOP)
+        	startMotorsSync(M1, M2, Action.STOP, duration);
     }
 
+	// Custom action on givedgi motor
+    private static void performMotorAction(NXTRegulatedMotor motor, Action action) {
+        switch (action) {
+            case FORWARD:
+                motor.forward();
+                break;
+            case BACKWARD:
+                motor.backward();
+                break;
+            case STOP:
+                motor.stop();
+                break;
+		default:
+			break;
+        }
+    }
+
+    enum Action {
+        FORWARD,
+        BACKWARD,
+        STOP,
+        TOURBILLON
+    }
 
 }
