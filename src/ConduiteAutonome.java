@@ -26,12 +26,12 @@ public class ConduiteAutonome {
 		SensorMode redMode = colorSensor.getRedMode();
 		redSample = new float[redMode.sampleSize()];
 		
-		// Hard-coded values
+		// Permet de jaugé la couleur pour connaitre une intervalle
 		
 		float lower = 0.02f;
 		float upper = 0.10f;
 		
-		// Start moving the robot
+		
 		//leftMotor.backward(); // backward because of gears
 		//rightMotor.backward();
 		leftMotor.setSpeed(400);
@@ -40,11 +40,11 @@ public class ConduiteAutonome {
 		while (true) {
 			redMode.fetchSample(redSample, 0);
 			
-			// Output sample data
+			// Affiche les couleurs
 			lcd.clear();
 			lcd.drawString(String.valueOf(redSample[0]), 1, 3);
 			
-			// Correct direction
+			// La bonne direction 
 			if (lower <= redSample[0] && redSample[0] <= upper) {
 			
 				leftMotor.forward();
