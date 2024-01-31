@@ -36,7 +36,7 @@ public class MotorSync {
 	            e.printStackTrace();
 	        }
 	        
-	        Delay.msDelay(duration); // Moving duration
+	    //    Delay.msDelay(duration); // Moving duration
 	        // Stop the motors if the're moving
 	        if (action != Action.STOP)
 	        	startMotorsSync(M1, M2, Action.STOP, duration);
