@@ -12,6 +12,7 @@ public class ConduiteAutonome {
 	private EV3ColorSensor colorSensor;
 	private EV3 ev3;
 	private  	TextLCD lcd;
+	
    public ConduiteAutonome() {
 		 leftMotor = Motor.B;
 		  rightMotor = Motor.C;

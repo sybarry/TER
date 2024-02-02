@@ -1,10 +1,4 @@
-
-
-
-import lejos.hardware.motor.NXTRegulatedMotor;
-import lejos.utility.Delay;
-
- 
+import lejos.hardware.motor.NXTRegulatedMotor; 
 
 public class MotorSync {
 	  

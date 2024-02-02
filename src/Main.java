@@ -1,27 +1,5 @@
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.UUID;
-
-import javax.sound.sampled.Port;
-
-import org.eclipse.paho.client.mqttv3.*;
-
-import lejos.hardware.BrickFinder;
-import lejos.hardware.Button;
-import lejos.hardware.ev3.EV3;
-import lejos.hardware.ev3.LocalEV3;
-import lejos.hardware.lcd.LCD;
-import lejos.hardware.lcd.TextLCD;
-import lejos.hardware.motor.Motor;
-import lejos.hardware.motor.NXTRegulatedMotor;
-import lejos.hardware.port.SensorPort;
-import lejos.hardware.sensor.EV3ColorSensor;
-import lejos.hardware.sensor.SensorMode;
-import lejos.remote.ev3.RMISampleProvider;
-import lejos.remote.ev3.RemoteEV3;
-import lejos.robotics.SampleProvider;
-import lejos.utility.Delay;
 
 public class Main {
 
