@@ -2,7 +2,7 @@ package pilottageMQTT;
 
 import lejos.utility.Delay;
 
-public class PilottageMain {
+public class Main {
 
 	public static void main(String[] args) throws Exception {
 		// MQTT Connexion configuration
