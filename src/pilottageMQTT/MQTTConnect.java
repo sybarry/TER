@@ -13,14 +13,18 @@ import lejos.utility.Delay;
 public class MQTTConnect {
 
 	public MQTTConnect(String broker_IP, final String clientID, String topic) throws Exception {
+		final String username = "ev3";
+		final String password = "omelette";
+		
+		
 		// Attempt to connect
 		final String broker = "tcp://" + broker_IP + ":1883";
 		MqttClient client = new MqttClient(broker, clientID);
 		MqttConnectOptions connOpts = new MqttConnectOptions();
 		connOpts.setCleanSession(true);
-		// Security credentials; not available in the broker for the moment
-		// connOpts.setUserName("");
-		// connOpts.setPassword("");
+		connOpts.setUserName(username);
+		connOpts.setPassword(password.toCharArray());
+		
 		Utils.print("Connecting to broker " + broker_IP);
 		client.connect(connOpts);
 		Utils.print("Connected");

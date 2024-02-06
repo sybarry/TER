@@ -2,11 +2,11 @@ package pilottageMQTT;
 
 import lejos.utility.Delay;
 
-public class Main {
+public class ControleMQTT {
 
 	public static void main(String[] args) throws Exception {
 		// MQTT Connexion configuration
-		final String MQTT_SERVER_IP = "192.168.127.124";
+		final String MQTT_SERVER_IP = "34.141.151.200";
 		final String clientId = "EV3_" + Utils.generateClientID();
 		final String topic = "ev3/topic";
 
