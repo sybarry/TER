@@ -6,7 +6,7 @@ public class ControleMQTT {
 
 	public static void main(String[] args) throws Exception {
 		// MQTT Connexion configuration
-		final String MQTT_SERVER_IP = "34.141.151.200";
+		final String MQTT_SERVER_IP = "141.145.203.36";
 		final String clientId = "EV3_" + Utils.generateClientID();
 		final String topic = "ev3/topic";
 
