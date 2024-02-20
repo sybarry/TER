@@ -1,4 +1,3 @@
-bin
-*.jar
-.settings
-.classpath
+/bin/
+.idea
+*.iml

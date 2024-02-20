@@ -16,7 +16,6 @@ public class MQTTConnect {
 		final String username = "ev3";
 		final String password = "omelette";
 		
-		
 		// Attempt to connect
 		final String broker = "tcp://" + broker_IP + ":1883";
 		MqttClient client = new MqttClient(broker, clientID);
