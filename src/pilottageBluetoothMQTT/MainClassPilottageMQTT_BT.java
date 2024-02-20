@@ -24,8 +24,8 @@ public class MainClassPilottageMQTT_BT {
         String MAC = localBTDevice.getBluetoothAddress();
         print("Address MAC:" + MAC);
 
-//		final String MQTT_SERVER_IP = "141.145.203.36";
-        final String MQTT_SERVER_IP = "192.168.0.188";
+		final String MQTT_SERVER_IP = "141.145.203.36";
+        //final String MQTT_SERVER_IP = "192.168.0.188";
         final String clientId = "EV3_" + MAC;
 
         try {
