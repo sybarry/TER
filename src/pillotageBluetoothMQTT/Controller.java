@@ -1,21 +1,26 @@
-package temp;
+package pillotageBluetoothMQTT;
 
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.MotorPort;
 import lejos.robotics.RegulatedMotor;
 
 public class Controller {
-	public static State actualState = State.STOPPED;
+	State actualState = State.STOPPED;
 	private final Motor leftMotor;
     private final Motor rightMotor;
     
 	public Controller()
 	{
-		this.leftMotor = new Motor(new EV3LargeRegulatedMotor(MotorPort.B));
-	    this.rightMotor = new Motor(new EV3LargeRegulatedMotor(MotorPort.C));
+		this.leftMotor = new Motor(new EV3LargeRegulatedMotor(MotorPort.C));
+	    this.rightMotor = new Motor(new EV3LargeRegulatedMotor(MotorPort.B));
 
     	RegulatedMotor[] T = {this.rightMotor.getMotor()};
     	leftMotor.getMotor().synchronizeWith(T);
+    	
+    	leftMotor.getMotor().startSynchronization();
+    	leftMotor.setSpeed(30);
+        rightMotor.setSpeed(30);
+        leftMotor.getMotor().endSynchronization();
 	}
 
 	public void movingForward () {

@@ -1,4 +1,4 @@
-package pilottageBluetoothMQTT;
+package pillotageBluetoothMQTT;
 
 import lejos.robotics.RegulatedMotor;
 
@@ -30,12 +30,12 @@ public class Motor {
 	}
 
 	public void movingBackward() {
-		setSpeed(50);
+//		setSpeed(50);
 		motor.backward();
 	}
 	
 	public void movingForward() {
-		setSpeed(50);
+//		setSpeed(50);
 		motor.forward();
 	}
 	
@@ -49,7 +49,6 @@ public class Motor {
 
 	public void stop() {
 		motor.stop();
-		setSpeed(0);
 	}
 
 	public void rotateHalf() {

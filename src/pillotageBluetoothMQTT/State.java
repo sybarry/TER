@@ -1,4 +1,4 @@
-package pilottageBluetoothMQTT;
+package pillotageBluetoothMQTT;
 
 public enum State {
 	BACKUP, SLOWING_DOWN,
