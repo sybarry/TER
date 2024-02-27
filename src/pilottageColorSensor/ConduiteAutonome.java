@@ -28,16 +28,18 @@ public class ConduiteAutonome {
 	public ConduiteAutonome(Automate automate) {
 		leftMotor = Motor.B;
 		rightMotor = Motor.C;
-		colorSensor = new EV3ColorSensor(SensorPort.S3);
+	//	colorSensor = new EV3ColorSensor(SensorPort.S3);
 		ev3 = (EV3) BrickFinder.getLocal();
 		lcd = ev3.getTextLCD();
 		 ultrasonicSensor = new EV3UltrasonicSensor(SensorPort.S4);
-
+          
 		 
 		 this.automate = automate;
 	}
+	
+	/*
 
-	public void test() throws InterruptedException, RuntimeException {
+	public void test_avec_couleur() throws InterruptedException, RuntimeException {
 		float redSample[];
 		SensorMode redMode = colorSensor.getRedMode();
 		redSample = new float[redMode.sampleSize()];
@@ -121,6 +123,20 @@ public class ConduiteAutonome {
 				throw new RuntimeException("Program stopped by user");
 		}
 	}
+	*/
+	
+	public void execute() {
+	 // System.out.print(automate.getAutomate().get("1").getAction());
+	    execute_Action("1");
+	}
+	
+	public void  execute_Action(String next_etat) {
+		if(automate.getAutomate().get(next_etat).getAction()==Action.STOP) return ;
+		  MotorSync.startMotorsSync(Motor.B, Motor.C, automate.getAutomate().get(next_etat).getAction(), automate.getAutomate().get(next_etat).getTemps());
+		  Delay.msDelay(500);
+		  execute_Action(automate.getAutomate().get(next_etat).getEtat_Destination());
+	}
+	
 	public boolean detectObstacle() {
 	  
 	   
