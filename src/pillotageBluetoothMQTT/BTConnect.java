@@ -18,7 +18,9 @@ public class BTConnect implements Runnable {
 		
 		while (true) {
 			int n = in.read();
-			executeCommand(MainMQTT_BT.ctrl, n);
+			if (!MainMQTT_BT.BT_disconnected)
+				executeCommand(MainMQTT_BT.ctrl, n);
+
 			if (n == -1) {
 				in.close();
 				break;

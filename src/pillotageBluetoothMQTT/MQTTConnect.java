@@ -5,7 +5,6 @@ import org.eclipse.paho.client.mqttv3.*;
 public class MQTTConnect {
     final String username = "ev3";
     final String password = "omelette";
-    static boolean disconnect = false;
 
     public MQTTConnect(String broker_IP, final String clientID, String topic) throws Exception {
         final String broker = "tcp://" + broker_IP + ":1883";
@@ -21,10 +20,9 @@ public class MQTTConnect {
         client.subscribe(topic);
         client.setCallback(new listenToMQTT());
         
-        while (!disconnect)
+        while (true)
         	continue;
-        
-        System.out.println("MQTT Disconnected");       
+              
     }
 
     private static class listenToMQTT implements MqttCallback {
@@ -48,7 +46,10 @@ public class MQTTConnect {
                     	MainMQTT_BT.ctrl.stop();
                         break;
                     case "disconnect":
-                    	disconnect = true;
+                    	MainMQTT_BT.BT_disconnected = true;
+                    	break;
+                    case "connect":
+                    	MainMQTT_BT.BT_disconnected = false;
                     	break;
                 }
             } catch (Exception e) {

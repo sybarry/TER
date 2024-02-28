@@ -11,6 +11,7 @@ public class MainMQTT_BT {
     private static final String MQTT_SERVER_IP = "192.168.0.188";
     private static final String clientId = "EV3_" + MAC;
     public static Controller ctrl;
+    public static boolean BT_disconnected = false;
 
     public static void main(String[] args) throws IOException {
         try {
@@ -31,7 +32,6 @@ public class MainMQTT_BT {
 				}
 			};
 			Thread T2 = new Thread(mqtt);
-			
 			
 			T1.start();
 			T2.start();

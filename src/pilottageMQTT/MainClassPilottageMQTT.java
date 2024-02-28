@@ -6,7 +6,7 @@ public class MainClassPilottageMQTT {
 
 	public static void main(String[] args) throws Exception {
 		// MQTT Connexion configuration
-		final String MQTT_SERVER_IP = "141.145.203.36";
+		final String MQTT_SERVER_IP = "172.20.10.4";
 		final String clientId = "EV3_" + Utils.generateClientID();
 		final String topic = "ev3/topic";
 
@@ -23,3 +23,4 @@ public class MainClassPilottageMQTT {
 	}
 
 }
+	
