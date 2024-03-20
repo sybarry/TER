@@ -1,11 +1,13 @@
 package pilottageColorSensor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -18,51 +20,78 @@ public class Automate {
   private  String red;
   private Set<String> keys;
   private JSONObject jsonPayload;
-  private Map<String, Action_Etat> automate;
-  Pattern pattern = Pattern.compile("([a-zA-Z]+)\\((\\d+)\\)(-?\\d+)?");
+  private Map<String, ArrayList<Action_Etat>> automate;
+  //Cet Regex permet de verifier que le fichier JSon respect bien le format de donnée attendu
+  Pattern pattern = Pattern.compile("([a-zA-Z]+)\\((\\d+)\\)(?:-(\\d+))?");
         public  Automate(String payload) throws ParseException {
          
         	JSONParser parser = new JSONParser();
              jsonPayload = (JSONObject) parser.parse(payload);
-          // Extraire les valeurs des champs "action" et "nom"
-              automate = new HashMap<String, Action_Etat>();
+          // Extraire les valeurs des champs "etats" et "action"
+              automate = new HashMap<String, ArrayList<Action_Etat>>();
              keys = jsonPayload.keySet();
+             //Conduit L'automate en utilisant un HashMap 
              BuildAutomate(keys);
                 
         }
         
-        public void  BuildAutomate(Set<String> keys) {
-        	
-        	for(String key : keys) {
-        		String value = (String) jsonPayload.get(key);
-        		Matcher matcher = pattern.matcher(value);
-        		Action actionElement = null;
-        		   if (matcher.matches()) {
-        	            String action = matcher.group(1);
-        	            int temps = Integer.parseInt(matcher.group(2));
-        	            String etat_destination = matcher.group(3);
-                    
-        	            
-        	         // Si remainingValue est présent, retirez le signe négatif
-        	            if (etat_destination != null && etat_destination.startsWith("-")) {
-        	                etat_destination = etat_destination.substring(1);
-        	            }
-        	            
-        	            actionElement = Action(action);
-        	          
-        	            Action_Etat element = new Action_Etat(actionElement, temps, etat_destination);
-        	            
-        	             automate.put(key, element);
-        	              
-        	       
-        	        } else {
-        	            System.out.println("La chaîne ne correspond pas au format attendu.");
-        	        }
-        	}
-        	
-        	
-        	
+        
+       /* Verifie que le format est correct et puis contruit l'automate comme suit recupere la valeur du fichier JSon en lui  
+        * decomposant en action plus Etat, et chaque keys u fichier devient un etat
+        * 
+        * */
+        
+        public void BuildAutomate(Set<String> keys) {
+            for (String key : keys) {
+                Object valueObj = jsonPayload.get(key);
+
+                if (valueObj instanceof JSONArray) {
+                    processJSONArray(key, (JSONArray) valueObj);
+                } else if (valueObj instanceof String) {
+                    processString(key, (String) valueObj);
+                }
+            }
         }
+
+        private void processJSONArray(String key, JSONArray jsonArray) {
+            for (Object obj : jsonArray) {
+                if (obj instanceof String) {
+                    processString(key, (String) obj);
+                }
+            }
+        }
+
+        private void processString(String key, String value) {
+            Matcher matcher = pattern.matcher(value);
+            Action actionElement = null;
+            
+            if (matcher.matches()) {
+                String action = matcher.group(1);
+                int temps = Integer.parseInt(matcher.group(2));
+                String etat_destination = matcher.group(3);
+
+                if (etat_destination != null && etat_destination.startsWith("-")) {
+                    etat_destination = etat_destination.substring(1);
+                }
+
+                actionElement = Action(action);
+
+                Action_Etat element = new Action_Etat(actionElement, temps, etat_destination);
+
+                if (automate.containsKey(key)) {
+                    ArrayList<Action_Etat> list = automate.get(key);
+                    list.add(element);
+                    automate.put(key, list);
+                } else {
+                    ArrayList<Action_Etat> list = new ArrayList<>();
+                    list.add(element);
+                    automate.put(key, list);
+                }
+            } else {
+                System.out.println("La chaîne ne correspond pas au format attendu.");
+            }
+        }
+        
         public Action Action(String action) {
         	switch (action) {
 			case "g":
@@ -80,18 +109,8 @@ public class Automate {
 				return null;
 			}
         }
-        
-        public String getWhite() {
-        	return white;
-        }
-        public String getBlack() {
-        	return black;
-        }
-        public String getRed() {
-        	return red;
-        }
-        
-        public Map<String,Action_Etat> getAutomate() {
+          
+        public Map<String,ArrayList<Action_Etat>> getAutomate() {
         	
         	return this.automate;
         }

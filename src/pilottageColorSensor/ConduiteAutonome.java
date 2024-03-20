@@ -1,4 +1,6 @@
 package pilottageColorSensor;
+import java.util.ArrayList;
+
 import lejos.hardware.BrickFinder;
 import lejos.hardware.Button;
 import lejos.hardware.ev3.EV3;
@@ -32,17 +34,57 @@ public class ConduiteAutonome {
 	
 
 	
-	public void execute() {
-	 // System.out.print(automate.getAutomate().get("1").getAction());
-	    execute_Action("1");
+	public void execute(String mots) {
+	   ArrayList<Action> TabAction = new ArrayList<Action>();
+	   char[] charArray = mots.toCharArray();
+	      for(char c : charArray) {
+	    	  TabAction.add(automate.Action(""+c+""));
+	      }
+			   
+	    execute_Action("1",0,TabAction);
 	}
 	
-	public void  execute_Action(String next_etat) {
-		if(automate.getAutomate().get(next_etat).getAction()==Action.STOP) return ;
+	/*Permet d'executer l'automate en entier jusqu'a tomber sur un etat final 
+	 * chaque appel on lui passe l'etat suivant ainsi de suite  
+	 * 
+	 * */
+	public void  execute_Action(String next_etat,int i,ArrayList<Action> action) {
+		 
+		  	if(automate.getAutomate().get(next_etat).get(0).getAction()==Action.STOP) {
+			if(i==action.size()) {
+				System.out.print("Match");
+				return;
+			}else {
+				System.out.print("Not Match");
+				return;
+			}
+		}
+	   
+		if(automate.getAutomate().get(next_etat).size() > 1) {
+			for(Action_Etat m :automate.getAutomate().get(next_etat)) {
+				 if(m.getAction()==action.get(i)) {
+					  MotorSync.startMotorsSync(Motor.B, Motor.C, m.getAction(), m.getTemps());
+					  Delay.msDelay(500);
+					 execute_Action(m.getEtat_Destination(), i+1, action);
+					 return;
+				 }
+			}
+			 
+			System.out.print("Not Match");
+			return;
+		}else {
+			 if(automate.getAutomate().get(next_etat).get(0).getAction()==action.get(i)) {
+				  MotorSync.startMotorsSync(Motor.B, Motor.C, automate.getAutomate().get(next_etat).get(0).getAction(), 
+						  automate.getAutomate().get(next_etat).get(0).getTemps());
+				  Delay.msDelay(500);
+				 execute_Action(automate.getAutomate().get(next_etat).get(0).getEtat_Destination(), i+1, action);
+				 return;
+			 }
+			 
+			 System.out.print("Not Match");
+			 return;
+		}
 		
-		  MotorSync.startMotorsSync(Motor.B, Motor.C, automate.getAutomate().get(next_etat).getAction(), automate.getAutomate().get(next_etat).getTemps());
-		  Delay.msDelay(500);
-		  execute_Action(automate.getAutomate().get(next_etat).getEtat_Destination());
 	}
 	
 	public boolean detectObstacle() {
