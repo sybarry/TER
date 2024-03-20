@@ -11,11 +11,12 @@ import lejos.utility.Delay;
 public class Main {
 
 	public static void main(String[] args) {
-	/*	
-		ConduiteAutonome conduite = new ConduiteAutonome();
-	
+		
+	    ConduiteByColor m = new  ConduiteByColor();
+	      
+	  
 		try {
-		//	conduite.test();
+		     m.test_avec_couleur();
 		} catch (InterruptedException e) {
 			System.out.println(e.getMessage());
 		} catch (RuntimeException e) {
@@ -24,8 +25,7 @@ public class Main {
 			Delay.msDelay(1500);
 		}
 		
-		System.exit(0);*/
-
-		   
+		System.exit(0);
+		
 	}
 }

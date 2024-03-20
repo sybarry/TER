@@ -9,10 +9,37 @@ public class MotorSync {
 	public static void startMotorsSync(final NXTRegulatedMotor M1, final NXTRegulatedMotor M2, final Action action,
 			final int duration) {
 		
-		performMotorAction(M1,M2, action);
+		   Thread M1_Thread = new Thread(new Runnable() {
+	            @Override
+	            public void run() {
+	                performMotorAction(M1,M2, action);
+	            }
+	        });
+		   
+		   Thread M2_Thread = new Thread(new Runnable() {
+	            @Override
+	            public void run() {
+	                performMotorAction(M2,M1, action);
+	            }
+	        });
+
+		   M1_Thread.start();
+	        M2_Thread.start();
+
+	        try {
+	            M1_Thread.join();
+	            M2_Thread.join();
+	        } catch (InterruptedException e) {
+	            e.printStackTrace();
+	        }
+
+	        
+	
 		
 		
 
+		
+		
 		if (duration != 0) {
 			Delay.msDelay(duration); // Moving duration
 			if (action != Action.STOP)
@@ -26,57 +53,12 @@ public class MotorSync {
 	private static void performMotorAction(final NXTRegulatedMotor motor1, final NXTRegulatedMotor motor2, Action action) {
 	    switch (action) {
 	        case FORWARD:
-	            Thread M1_Thread = new Thread(new Runnable() {
-	                @Override
-	                public void run() {
-	                    motor1.forward();
-	                }
-	            });
-
-	            Thread M2_Thread = new Thread(new Runnable() {
-	                @Override
-	                public void run() {
-	                    motor2.forward();
-	                }
-	            });
-
-	            M1_Thread.start();
-	            M2_Thread.start();
-
-	            try {
-	                M1_Thread.join();
-	                M2_Thread.join();
-	            } catch (InterruptedException e) {
-	                e.printStackTrace();
-	            }
-	            break;
+	        	motor1.forward();
+                break;
 
 	        case BACKWARD:
-	            Thread M1_Backward_Thread = new Thread(new Runnable() {
-	                @Override
-	                public void run() {
-	                    motor1.backward();
-	                }
-	            });
-
-	            Thread M2_Backward_Thread = new Thread(new Runnable() {
-	                @Override
-	                public void run() {
-	                    motor2.backward();
-	                }
-	            });
-
-	            M1_Backward_Thread.start();
-	            M2_Backward_Thread.start();
-
-	            try {
-	                M1_Backward_Thread.join();
-	                M2_Backward_Thread.join();
-	            } catch (InterruptedException e) {
-	                e.printStackTrace();
-	            }
-	            break;
-
+	            motor1.backward();
+                break;
 	        case STOP:
 	            motor1.stop();
 	            motor2.stop();

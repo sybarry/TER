@@ -56,11 +56,13 @@ public class MQTTConnect {
 			@Override
 			public void messageArrived(String topic, MqttMessage message) throws ParseException, InterruptedException, RuntimeException {
 				String payload = new String(message.getPayload());
-			
+		
 				Automate auto = new Automate(payload);
+			
+				
 				ConduiteAutonome  conduiteAutonome = new ConduiteAutonome(auto);
 				conduiteAutonome.execute();
-				
+			
 				
 				
 				
